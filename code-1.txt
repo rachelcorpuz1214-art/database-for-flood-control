@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Flood Control Corruption Database – Explained Version</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- 
+  ================================
+  CSS STYLES
+  Controls layout, colors, spacing
+  ================================
+-->
+<style>
+body{
+  font-family: Arial, Helvetica, sans-serif;
+  background:#f4f4f4;
+  margin:0;
+}
+header{
+  background:#0a4d8c;
+  color:#fff;
+  padding:1rem;
+  text-align:center;
+}
+.controls{
+  display:flex;
+  flex-wrap:wrap;
+  gap:1rem;
+  justify-content:center;
+  padding:1rem;
+  background:#e0e0e0;
+}
+input, select{
+  padding:.5rem;
+  font-size:1rem;
+}
+table{
+  width:96%;
+  margin:1rem auto;
+  border-collapse:collapse;
+  background:#fff;
+}
+th, td{
+  border:1px solid #ccc;
+  padding:.6rem;
+}
+th{
+  background:#0a4d8c;
+  color:#fff;
+}
+button{
+  background:#0a4d8c;
+  color:#fff;
+  border:none;
+  padding:.4rem .7rem;
+  cursor:pointer;
+}
+button:hover{
+  background:#06345f;
+}
+.summary{
+  width:96%;
+  margin:2rem auto;
+}
+.summary h2{
+  text-align:center;
+}
+</style>
+</head>
+
+<body>
+
+<!-- ================================
+     PAGE HEADER
+================================ -->
+<header>
+  <h1>Flood Control Corruption Database</h1>
+  <p>Client-side Database | HTML + CSS + JavaScript</p>
+</header>
+
+<!-- ================================
+     SEARCH & FILTER CONTROLS
+================================ -->
+<div class="controls">
+  <select id="category">
+    <option value="all">All Categories</option>
+    <option value="contractor">Contractors / Companies</option>
+    <option value="personnel">DPWH Personnel</option>
+    <option value="operators">Politicians / Operators</option>
+  </select>
+
+  <input type="text" id="search" placeholder="Search by name, region, city, role, amount">
+</div>
+
+<!-- ================================
+     MAIN DATABASE TABLE
+================================ -->
+<table>
+<thead>
+<tr>
+  <th>Category</th>
+  <th>Name / Company</th>
+  <th>Role / Position</th>
+  <th>Region</th>
+  <th>City</th>
+  <th>Project Location</th>
+  <th>Notes / Allegation</th>
+  <th>Amount (₱)</th>
+  <th>Year</th>
+  <th>Edit</th>
+</tr>
+</thead>
+<tbody id="tbody"></tbody>
+</table>
+
+<!-- ================================
+     TOTALS SUMMARY TABLE
+================================ -->
+<div class="summary">
+<h2>Total Amounts per Person / Company</h2>
+<table>
+<thead>
+<tr>
+  <th>Name / Company</th>
+  <th>Total Amount (₱)</th>
+  <th>Category</th>
+</tr>
+</thead>
+<tbody id="totals"></tbody>
+</table>
+</div>
+
+<!-- ================================
+     JAVASCRIPT DATABASE LOGIC
+================================ -->
+<script>
+
+/*
+  ======================================
+  DATABASE (JavaScript Array of Objects)
+  Each object = one database record
+  ======================================
+*/
+const data = [
+
+/* ================= CONTRACTORS ================= */
+{category:'contractor',name:'Legacy Construction Corp.',role:'Contractor',region:'Multiple Regions',city:'Multiple Cities',location:'Nationwide Flood Control Projects',notes:'Top 15 contractor',amount:'Part of ~₱100B',amountNumeric:100000000000,year:''},
+{category:'contractor',name:'Alpha & Omega Gen. Contractor & Dev. Corp.',role:'Contractor',region:'Multiple Regions',city:'Multiple Cities',location:'Flood Control Projects',notes:'Discaya family links',amount:'Part of ~₱100B',amountNumeric:100000000000,year:''},
+{category:'contractor',name:'St. Timothy Construction Corp.',role:'Contractor',region:'Region III',city:'Bulacan',location:'Flood Control Project',notes:'Ghost / substandard projects',amount:'₱96,500,000',amountNumeric:96500000,year:''},
+{category:'contractor',name:'Centerways Construction & Dev., Inc.',role:'Contractor',region:'Multiple',city:'Multiple',location:'Flood Control',notes:'Top 15 contractor',amount:'Part of ~₱100B',amountNumeric:100000000000,year:''},
+{category:'contractor',name:'EGB Construction Corp.',role:'Contractor',region:'Multiple',city:'Multiple',location:'Flood Control',notes:'Top 15 contractor',amount:'Part of ~₱100B',amountNumeric:100000000000,year:''},
+{category:'contractor',name:'QM Builders',role:'Contractor',region:'Multiple',city:'Multiple',location:'Flood Control',notes:'Top 15 contractor',amount:'Part of ~₱100B',amountNumeric:100000000000,year:''},
+{category:'contractor',name:'Topnotch Catalyst Builders Inc.',role:'Contractor',region:'Multiple',city:'Multiple',location:'Flood Control',notes:'Top 15 contractor',amount:'Part of ~₱100B',amountNumeric:100000000000,year:''},
+{category:'contractor',name:'Sunwest, Inc.',role:'Contractor',region:'Multiple',city:'Multiple',location:'Flood Control',notes:'Top 15 contractor',amount:'Part of ~₱100B',amountNumeric:100000000000,year:''},
+{category:'contractor',name:'Hi-Tone Construction & Dev. Corp.',role:'Contractor',region:'Multiple',city:'Multiple',location:'Flood Control',notes:'Top 15 contractor',amount:'Part of ~₱100B',amountNumeric:100000000000,year:''},
+{category:'contractor',name:'Triple 8 Construction & Supply, Inc.',role:'Contractor',region:'Multiple',city:'Multiple',location:'Flood Control',notes:'Top 15 contractor',amount:'Part of ~₱100B',amountNumeric:100000000000,year:''},
+{category:'contractor',name:'Royal Crown Monarch Construction & Supplies Corp.',role:'Contractor',region:'Multiple',city:'Multiple',location:'Flood Control',notes:'Top 15 contractor',amount:'Part of ~₱100B',amountNumeric:100000000000,year:''},
+{category:'contractor',name:'Road Edge Trading & Dev. Services',role:'Contractor',region:'Multiple',city:'Multiple',location:'Flood Control',notes:'Top 15 contractor',amount:'Part of ~₱100B',amountNumeric:100000000000,year:''},
+{category:'contractor',name:'MG Samidan Construction',role:'Contractor',region:'Multiple',city:'Multiple',location:'Flood Control',notes:'Top 15 contractor',amount:'Part of ~₱100B',amountNumeric:100000000000,year:''},
+{category:'contractor',name:'L.R. Tiqui Builders, Inc.',role:'Contractor',region:'Multiple',city:'Multiple',location:'Flood Control',notes:'Top 15 contractor',amount:'Part of ~₱100B',amountNumeric:100000000000,year:''},
+{category:'contractor',name:'SYMS Construction Trading',role:'Contractor',region:'—',city:'—',location:'—',notes:'Named in asset probe',amount:'No public amount',year:''},
+{category:'contractor',name:'IM Construction Corp.',role:'Contractor',region:'—',city:'—',location:'—',notes:'Named in asset probe',amount:'No public amount',year:''},
+
+/* ================= PERSONNEL ================= */
+{category:'personnel',name:'Brice Ericson Hernandez',role:'Former DPWH OIC-Assistant District Engineer',region:'Region III',city:'Bulacan',location:'Flood Control',notes:'Asset probe',amount:'N/A',year:''},
+{category:'personnel',name:'Jaypee Mendoza',role:'Former DPWH OIC-Assistant District Engineer',region:'Region III',city:'Bulacan',location:'Flood Control',notes:'Asset probe',amount:'N/A',year:''},
+{category:'personnel',name:'John Michael Ramos',role:'DPWH Construction Section Chief',region:'Region III',city:'Bulacan',location:'Flood Control',notes:'Asset probe',amount:'N/A',year:''},
+{category:'personnel',name:'Ernesto Galang',role:'DPWH Planning & Design',region:'—',city:'—',location:'—',notes:'Asset probe',amount:'N/A',year:''},
+{category:'personnel',name:'Lorenzo Pagtalunan',role:'DPWH Personnel',region:'—',city:'—',location:'—',notes:'Asset probe',amount:'N/A',year:''},
+{category:'personnel',name:'Norberto Santos',role:'DPWH Personnel',region:'—',city:'—',location:'—',notes:'Asset probe',amount:'N/A',year:''},
+{category:'personnel',name:'Jaime Hernandez',role:'DPWH Personnel',region:'—',city:'—',location:'—',notes:'Asset probe',amount:'N/A',year:''},
+{category:'personnel',name:'Floralyn Simbulan',role:'DPWH Personnel',region:'—',city:'—',location:'—',notes:'Asset probe',amount:'N/A',year:''},
+{category:'personnel',name:'Juanito Mendoza',role:'DPWH Personnel',region:'—',city:'—',location:'—',notes:'Asset probe',amount:'N/A',year:''},
+{category:'personnel',name:'Roberto Roque',role:'DPWH Personnel',region:'—',city:'—',location:'—',notes:'Asset probe',amount:'N/A',year:''},
+{category:'personnel',name:'Benedict Matawaran',role:'DPWH Personnel',region:'—',city:'—',location:'—',notes:'Asset probe',amount:'N/A',year:''},
+{category:'personnel',name:'Christina Mae Pineda',role:'DPWH Personnel',region:'—',city:'—',location:'—',notes:'Asset probe',amount:'N/A',year:''},
+{category:'personnel',name:'Paul Jayson Duya',role:'DPWH Personnel',region:'—',city:'—',location:'—',notes:'Asset probe',amount:'N/A',year:''},
+{category:'personnel',name:'Merg Jason Laus',role:'DPWH Personnel',region:'—',city:'—',location:'—',notes:'Asset probe',amount:'N/A',year:''},
+{category:'personnel',name:'Lemuel Ephraim Roque',role:'DPWH Personnel',region:'—',city:'—',location:'—',notes:'Asset probe',amount:'N/A',year:''},
+{category:'personnel',name:'Arjay Domasig',role:'DPWH Personnel',region:'—',city:'—',location:'—',notes:'Asset probe',amount:'N/A',year:''},
+{category:'personnel',name:'John Carlo Rivera',role:'DPWH Personnel',region:'—',city:'—',location:'—',notes:'Asset probe',amount:'N/A',year:''},
+{category:'personnel',name:'John Benex Francisco',role:'DPWH Personnel',region:'—',city:'—',location:'—',notes:'Asset probe',amount:'N/A',year:''},
+{category:'personnel',name:'Jolo Mari Tayao',role:'DPWH Personnel',region:'—',city:'—',location:'—',notes:'Asset probe',amount:'N/A',year:''},
+
+/* ================= OPERATORS / POLITICIANS ================= */
+{category:'operators',name:'Henry Alcantara',role:'Former DPWH Bulacan District Engineer',region:'Region III',city:'Bulacan',location:'Flood Control',notes:'Returned kickbacks; state witness',amount:'₱181,000,000',amountNumeric:181000000,year:'2025'},
+{category:'operators',name:'DPWH NCR Director (Unnamed)',role:'DPWH NCR Director',region:'NCR',city:'Metro Manila',location:'Flood Control',notes:'Returned funds',amount:'₱40,000,000',amountNumeric:40000000,year:'2025'},
+{category:'operators',name:'Roberto Bernardo',role:'Former DPWH Undersecretary',region:'National',city:'—',location:'—',notes:'Frozen funds',amount:'₱7,000,000',amountNumeric:7000000,year:'2025'},
+{category:'operators',name:'Francis “Chiz” Escudero',role:'Senator',region:'National',city:'—',location:'Campaign Funding',notes:'Admitted donation',amount:'₱30,000,000',amountNumeric:30000000,year:'2022'}
+];
+
+/* ================= FUNCTIONS ================= */
+
+// Convert numbers to peso format
+function peso(n){
+  return '₱' + n.toLocaleString();
+}
+
+// Render table rows
+function render(){
+  const cat=document.getElementById('category').value;
+  const q=document.getElementById('search').value.toLowerCase();
+  const tbody=document.getElementById('tbody');
+  tbody.innerHTML='';
+
+  data.filter(d =>
+    (cat==='all'||d.category===cat) &&
+    Object.values(d).some(v=>String(v).toLowerCase().includes(q))
+  ).forEach((d,i)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td>${d.category}</td>
+      <td>${d.name}</td>
+      <td>${d.role}</td>
+      <td>${d.region}</td>
+      <td>${d.city}</td>
+      <td>${d.location}</td>
+      <td>${d.notes}</td>
+      <td>${d.amount}</td>
+      <td>${d.year}</td>
+      <td><button onclick="editRow(${i})">Edit</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  renderTotals();
+}
+
+// Edit record using prompt
+function editRow(i){
+  const d=data[i];
+  ['name','role','region','city','location','notes','amount','year']
+  .forEach(k=>{
+    const v=prompt('Edit '+k,d[k]||'');
+    if(v!==null && v!=='') d[k]=v;
+  });
+  render();
+}
+
+// Compute totals
+function renderTotals(){
+  const totals={};
+  data.forEach(d=>{
+    if(d.amountNumeric){
+      totals[d.name]=(totals[d.name]||0)+d.amountNumeric;
+    }
+  });
+  const t=document.getElementById('totals');
+  t.innerHTML='';
+  Object.keys(totals).forEach(name=>{
+    const row=data.find(d=>d.name===name);
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td>${name}</td>
+      <td>${peso(totals[name])}</td>
+      <td>${row.category}</td>
+    `;
+    t.appendChild(tr);
+  });
+}
+
+// Event listeners
+document.getElementById('category').onchange=render;
+document.getElementById('search').oninput=render;
+render();
+
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
